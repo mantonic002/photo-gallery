@@ -22,7 +22,7 @@ class PhotoViewModel : ViewModel() {
     private fun fetchPhotos() {
         viewModelScope.launch {
             val response = try {
-                RetrofitInstance.api.getPhotos(5, "")
+                RetrofitInstance.api.getPhotos(24, "")
             } catch (e: IOException) {
                 Log.e("TAG", "IOException, could not fetch photos", e)
                 return@launch
