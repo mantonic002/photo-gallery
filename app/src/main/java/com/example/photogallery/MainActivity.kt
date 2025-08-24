@@ -112,7 +112,7 @@ fun Thumbnail(photo: Photo, modifier: Modifier = Modifier) {
 @Composable
 fun FullscreenSlider(photos: List<Photo>, activePhotoId: String, modifier: Modifier = Modifier) {
     val activePhotoIndex = photos.indexOfFirst { it.ID == activePhotoId }
-    var pagerState = rememberPagerState(initialPage = activePhotoIndex, 0f, { photos.size })
+    val pagerState = rememberPagerState(initialPage = activePhotoIndex, 0f, { photos.size })
     Box(
         modifier = Modifier
             .fillMaxSize()
