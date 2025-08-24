@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -68,8 +70,8 @@ private fun ImageGrid(photos: List<Photo>, modifier: Modifier = Modifier) {
         BackHandler {
             activePhotoId = null
         }
-        FullScreenImage(
-            photo = photos.first { it.ID == activePhotoId },
+        FullscreenSlider(
+            photos, activePhotoId!!
         )
     }
 }
@@ -84,6 +86,27 @@ fun Thumbnail(photo: Photo, modifier: Modifier = Modifier) {
             .padding(4.dp),
         contentScale = ContentScale.Crop,
     )
+}
+
+@Composable
+fun FullscreenSlider(photos: List<Photo>, activePhotoId: String, modifier: Modifier = Modifier) {
+    val activePhotoIndex = photos.indexOfFirst { it.ID == activePhotoId }
+    var pagerState = rememberPagerState(initialPage = activePhotoIndex, 0f, { photos.size })
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+    ) {
+        HorizontalPager(pagerState) { index ->
+            val photo = photos[index]
+            AsyncImage(
+                model = "http://10.0.2.2:8080/files/${photo.ID}.jpg",
+                contentDescription = "Photo ${photo.ID}",
+                modifier = modifier.fillMaxSize(),
+                contentScale = ContentScale.Fit,
+            )
+        }
+    }
 }
 
 @Composable
