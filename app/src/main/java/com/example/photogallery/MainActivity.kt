@@ -14,13 +14,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -55,8 +59,12 @@ class MainActivity : ComponentActivity() {
 @Composable
 private fun ImageGrid(photos: List<Photo>, modifier: Modifier = Modifier) {
     var activePhotoId by rememberSaveable { mutableStateOf<String?>(null) }
+    val listState = rememberLazyGridState()
+    val viewModel: PhotoViewModel = viewModel()
+
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 128.dp),
+        state = listState,
         modifier = modifier.padding(8.dp)
         ) {
         items(photos, { it.ID }) { photo ->
@@ -64,6 +72,19 @@ private fun ImageGrid(photos: List<Photo>, modifier: Modifier = Modifier) {
                 photo,
                 Modifier.clickable { activePhotoId = photo.ID }
             )
+        }
+    }
+    val shouldLoadMore = remember {
+        derivedStateOf {
+            val lastVisible = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
+            val total = listState.layoutInfo.totalItemsCount
+            lastVisible != null && lastVisible >= total - 3
+        }
+    }
+
+    LaunchedEffect(shouldLoadMore.value) {
+        if (shouldLoadMore.value) {
+            viewModel.fetchPhotos(24, photos.lastOrNull()?.ID ?: "")
         }
     }
     if (activePhotoId != null) {

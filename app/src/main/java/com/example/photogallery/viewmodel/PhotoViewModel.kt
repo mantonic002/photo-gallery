@@ -19,10 +19,10 @@ class PhotoViewModel : ViewModel() {
         fetchPhotos()
     }
 
-    private fun fetchPhotos() {
+    fun fetchPhotos(limit: Int = 32, lastId: String = "") {
         viewModelScope.launch {
             val response = try {
-                RetrofitInstance.api.getPhotos(24, "")
+                RetrofitInstance.api.getPhotos(limit, lastId)
             } catch (e: IOException) {
                 Log.e("TAG", "IOException, could not fetch photos", e)
                 return@launch
@@ -32,7 +32,7 @@ class PhotoViewModel : ViewModel() {
             }
 
             if (response.isSuccessful && response.body() != null) {
-                _photos.value = response.body()!!
+                _photos.value += response.body()!!
             } else {
                 Log.e("TAG", "Response was not successful or body was null")
             }
